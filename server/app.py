@@ -33,8 +33,7 @@ def campers():
             camper_dict = camper.to_dict(rules=('-signups',))
             campers.append(camper_dict)
             
-        response = make_response(campers, 200)
-        return response
+        return make_response(campers, 200)
     
     if request.method == 'POST':
         try:
@@ -44,7 +43,7 @@ def campers():
             )
             db.session.add(new_camper)
             db.session.commit()
-            return new_camper.to_dict(rules=('-signups',)), 201
+            return make_response(new_camper.to_dict(), 201)
         except ValueError:
             return make_response({ "errors": ["validation errors"] }, 400)
     
@@ -53,17 +52,12 @@ def campers_by_id(id):
     camper = Camper.query.filter(Camper.id == id).first()
     
     if camper == None:
-        response_body = {
-            "error": "Camper not found"
-        }
-        response = make_response(response_body, 404)
-
-        return response
+        return make_response({"error": "Camper not found"}, 404)
+    
     else:
         if request.method == 'GET':
             camper_dict = camper.to_dict()
-            response = make_response(camper_dict, 200)
-            return response
+            return make_response(camper_dict, 200)
         
         elif request.method == "PATCH":
             try:
@@ -72,7 +66,7 @@ def campers_by_id(id):
                 db.session.add(camper)
                 db.session.commit()
 
-                return camper.to_dict(rules=('-signups',)), 202
+                return make_response(camper.to_dict(rules=('-signups',)), 202)
 
             except ValueError:
                 return make_response({"errors": ["validation errors"]}, 400)
@@ -83,20 +77,15 @@ def activities():
     for activity in Activity.query.all():
         activity_dict = activity.to_dict(rules=('-signups',))
         activities.append(activity_dict)
-    response = make_response(activities, 200)
-    return response
+    return make_response(activities, 200)
 
 @app.route('/activities/<int:id>', methods=['DELETE'])
 def activities_by_id(id):
     activity = Activity.query.filter(Activity.id == id).first()
 
     if activity == None:
-        response_body = {
-            "error": "Activity not found"
-        }
-        response = make_response(response_body, 404)
-
-        return response
+        return make_response({"error": "Activity not found"}, 404)
+    
     else:
         if request.method == 'DELETE':
             db.session.delete(activity)
@@ -113,7 +102,8 @@ def signups():
         )
         db.session.add(new_signup)
         db.session.commit()
-        return new_signup.to_dict(), 201
+        return make_response(new_signup.to_dict(), 201)
+    
     except ValueError:
         return make_response({"errors": ["validation errors"]}, 400)
 
